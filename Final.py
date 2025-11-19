@@ -1,48 +1,107 @@
-'''Título del Proyecto: Sistema de Gestión Académica "StudentTask Manager"
 
 
-• Descripción General: El proyecto consiste en el diseño y desarrollo de un sistema en
-Python para la administración eficiente de una institución educativa. El sistema permitirá
-registrar estudiantes, gestionar sus calificaciones, administrar una cola de atención para
-servicios escolares y mantener un historial de operaciones. El objetivo es resolver la
-necesidad de organizar grandes volúmenes de datos académicos y optimizar el flujo de
-atención a los alumnos.'''
-
-
+#Nodo para la clase linked list
 class Node:
-    def __init__(self,nombre,next,previous):
+    def __init__(self,nombre,id,calificacion):
         self.nombre = nombre
-        self.next =next
-        self.previous = previous
+        self.calificacion = calificacion
+        self.id = id
+        self.siguiente =None
 
+
+#Nodo para la clase arbol
 class NodeAB:
-    def __init__(self,matricula,izq,der):
-        self.matricula = matricula
-        self.izq =izq
-        self.der = der
+    def __init__(self,raiz):
+        self.raiz = raiz
+        self.der = None
+        self.izq = None
 
-#Se utilizará para indexar las matrículas (ID) de los estudiantes, 
-#permitiendo búsquedas de alta velocidad para consultar datos específicos.
-class Tree:
+#Para indexar las matrículas (ID) de los estudiantes,permitiendo búsquedas de alta velocidad para consultar datos específicos.
+class ArbolB:
     def __init__(self):
-        pass
+        self.raiz = None
 
-    def _search_recursivo(self):
-        pass
+    def insertar(self,dato):
+        if not self.raiz:
+            self.raiz = NodeAB(dato)
+        else:
+            self._insertar_rec(self.raiz,dato)
 
-    def search(self):
-        pass
+    def _insertar_rec(self,actual,dato):
+        if actual is not None:
+            if actual.dato > dato:
+                if actual.izq is None:
+                    actual.izq = NodeAB(dato)
+                else:
+                    self._insertar_rec(actual.izq,dato)
+            else:
+                if actual.der is None:
+                    actual.der = NodeAB(dato)
+                else:
+                    self._insertar_rec(actual.der,dato)
+        
+    def buscar(self,buscar):
+        node = self._buscar_rec(self.raiz,buscar)
+        if node:
+            print(f'Encontrado: {node.nombre}')
+        else:
+            print('No encontrado')
 
-# Se utilizará para almacenar el registro principal de estudiantes
-#activos. Permite una inserción dinámica de nuevos alumnos sin un tamaño fijo predefinido.
+    def _buscar_rec(self,actual,buscar):
+        if actual is None:
+            return None
+        if actual.dato == buscar:
+            return buscar
+        if actual.dato > buscar:
+            return self._buscar_rec(actual.izq, buscar)
+        else:
+            return self._buscar_rec(actual.der,buscar)
 
+
+#Para almacenar el registro principal de estudiantes activos.
 class LinkedList:
     def __init__(self):
-        pass
+        self.cabeza = None
+        
+    def agregar_estudiante(self, id_estudiante, nombre, calificacion):
+        nuevo_estudiante = Node(id_estudiante, nombre, calificacion)
+        if self.cabeza is None:
+            self.cabeza = nuevo_estudiante
+            print(f"Estudiante {nombre} añadido")
+            return
+        actual = self.cabeza
+        while actual.siguiente: 
+            actual = actual.siguiente
+        
+        actual.siguiente = nuevo_estudiante
+        print(f"Estudiante {nombre} añadido al final.")
+
+    def mostrar_lista(self):
+        estudiantes = []
+        actual = self.cabeza
+        while actual:
+            estudiantes.append(f"ID: {actual.id} | {actual.nombre} ({actual.calificacion})")
+            actual = actual.siguiente
+        
+        print("\nLISTA DE ESTUDIANTES ACTIVOS")
+        if not estudiantes:
+            print("No hay estudiantes registrados.")
+        else:
+            print("\n".join(estudiantes))
+            print("-------------------------------")
+
+
+    def obtener_lista_nodos(self):
+            nodos = []
+            actual = self.head
+            while actual:
+                nodos.append(actual)
+                actual = actual.next
+            return nodos
 
 #Funcionará como un historial de "Deshacer" (Undo). Almacenará las últimas
 #acciones realizadas (ej. agregar un estudiante) para poder revertirlas si hubo un error,
-#siguiendo el principio LIFO (Last In, First Out).
+
 
 class Stack:
     def __init__(self):
@@ -63,10 +122,7 @@ class Stack:
     def top(self):
         print(self.list[-1])
 
-#Gestionará la "Ventanilla de Atención". Los estudiantes que soliciten
-#trámites se formarán en esta estructura bajo el principio FIFO (First In, First Out) para ser
-#atendidos en orden.
-        
+#Gestionará la "Ventanilla de Atención".
 class Queue:
     def __init__(self):
         self.list= []
@@ -86,29 +142,25 @@ class Queue:
     def peek(self):
         print(self.list[0])
 
-#Se utilizará para ordenar la lista de estudiantes según su promedio
-#general (de mayor a menor) para reportes de honor.
+#Para ordenar la lista de estudiantes según su promedio general (de mayor a menor).
    
 def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
         for j in range(0, n-i-1):
-            if arr[j] > arr[j+1]:
+            if arr[j].califiacion > arr[j+1].calificacion:
                 arr[j], arr[j+1] = arr[j+1], arr[j]
     return arr
 
-#Se implementará para ordenar alfabéticamente los reportes de
-#asistencia o listas de nombres
+#Para ordenar alfabéticamente los reportes de asistencia 
 def selection_sort(arr):
     n = len(arr)
     for i in range(n):
         min_index = i
         for j in range(i + 1, n):
-            if arr[j] < arr[min_index]:
+            if arr[j].nombre.lower() < arr[min_index].nombre.lower():
                 min_index = j
-        temp = arr[i]
-        arr[i] = arr[min_index]
-        arr[min_index] = temp
+        arr[i], arr[min_index] = arr[min_index], arr[i]
     return arr
 
 
@@ -131,20 +183,50 @@ def data():
 
 
 def main():
+    tree = ArbolB()
+    pila = Stack() 
+    cola = Queue()
+    lista_estudiantes = LinkedList()
     while True:
         x = menu()
         match x:
             case '1':
-                pass
+                id_alum = int(input('Ingrese ID del estudiante: '))
+                nom_alum = input('Ingrese Nombre del estudiante: ')
+                cal_alum = float(input('Ingrese Calificación: '))
+                
+                lista_estudiantes.agregar_estudiante(nom_alum, id_alum, cal_alum)
+                tree.insertar(id_alum)
+                pila.addAction(f"Agregado ID: {id_alum}")
+
             case '2':
-                pass
+                if not cola.isEmpty():
+                    print(f"Atendiendo al alumno con ID: {cola.list[0]}")
+                    cola.remove()
+                else:
+                    print("La cola está vacía.")
+
             case '3':
-                pass
+                id_busqueda = int(input("Ingrese ID a buscar: "))
+                tree.buscar(id_busqueda)
+
             case '4':
-                arr = [2,3,10,5,9]
-                print(bubble_sort(arr))
+                    x = input('Quiere el reporte alfabeticamente(A) o por calificaciones(B)? ')
+                    if x == 'A':
+                        with open('ReporteAlfabetico.txt', 'a') as f: 
+                            calif = bubble_sort(nodos)
+                            nodos = lista_estudiantes.obtener_lista_nodos()
+                            for nodo in calif:
+                                f.writelines(f"Nombre: {nodo.nombre} | ID: {nodo.id} | Calificación: {nodo.calificacion}\n")
+                            print('Reporte guardado como ReporteAlfabetico.txt')
+                    elif x == 'B':
+                        with open('ReporteCalificaciones.txt', 'a') as f: 
+                            nombres = selection_sort(nodos)
+                            for nodo in nombres:
+                                f.writelines(f"Nombre: {nodo.nombre} | ID: {nodo.id} | Calificación: {nodo.calificacion}\n")
+                            print('Reporte guardado como ReporteCalificaciones.txt')
             case '5':
                 break
-
+            
 if __name__ == '__main__':
     main()
