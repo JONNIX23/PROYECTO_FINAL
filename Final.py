@@ -16,8 +16,8 @@ class NodeAB:
         self.der = None
         self.izq = None
 
-#Para indexar las matrículas (ID) de los estudiantes,permitiendo búsquedas de alta velocidad para consultar datos específicos.
-class ArbolB:
+#Para indexar las matrículas  (ID) de los estudiantes,permitiendo búsquedas de alta velocidad para consultar datos específicos.
+class ArbolB: 
     def __init__(self):
         self.raiz = None
 
@@ -29,7 +29,7 @@ class ArbolB:
 
     def _insertar_rec(self,actual,dato):
         if actual is not None:
-            if actual.dato > dato:
+            if actual.raiz > dato:
                 if actual.izq is None:
                     actual.izq = NodeAB(dato)
                 else:
@@ -43,16 +43,16 @@ class ArbolB:
     def buscar(self,buscar):
         node = self._buscar_rec(self.raiz,buscar)
         if node:
-            print(f'Encontrado: {node.nombre}')
+            print(f'Encontrado ID: {node.raiz}')
         else:
             print('No encontrado')
 
     def _buscar_rec(self,actual,buscar):
         if actual is None:
             return None
-        if actual.dato == buscar:
-            return buscar
-        if actual.dato > buscar:
+        if actual.raiz == buscar:
+            return actual
+        if actual.raiz > buscar:
             return self._buscar_rec(actual.izq, buscar)
         else:
             return self._buscar_rec(actual.der,buscar)
@@ -64,7 +64,7 @@ class LinkedList:
         self.cabeza = None
         
     def agregar_estudiante(self, id_estudiante, nombre, calificacion):
-        nuevo_estudiante = Node(id_estudiante, nombre, calificacion)
+        nuevo_estudiante = Node(nombre ,id_estudiante, calificacion)
         if self.cabeza is None:
             self.cabeza = nuevo_estudiante
             print(f"Estudiante {nombre} añadido")
@@ -93,10 +93,10 @@ class LinkedList:
 
     def obtener_lista_nodos(self):
             nodos = []
-            actual = self.head
+            actual = self.cabeza
             while actual:
                 nodos.append(actual)
-                actual = actual.next
+                actual = actual.siguiente
             return nodos
 
 #Funcionará como un historial de "Deshacer" (Undo). Almacenará las últimas
@@ -148,7 +148,7 @@ def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
         for j in range(0, n-i-1):
-            if arr[j].califiacion > arr[j+1].calificacion:
+            if arr[j].calificacion < arr[j+1].calificacion:
                 arr[j], arr[j+1] = arr[j+1], arr[j]
     return arr
 
@@ -195,7 +195,7 @@ def main():
                 nom_alum = input('Ingrese Nombre del estudiante: ')
                 cal_alum = float(input('Ingrese Calificación: '))
                 
-                lista_estudiantes.agregar_estudiante(nom_alum, id_alum, cal_alum)
+                lista_estudiantes.agregar_estudiante(id_alum, nom_alum, cal_alum)
                 tree.insertar(id_alum)
                 pila.addAction(f"Agregado ID: {id_alum}")
 
@@ -213,18 +213,22 @@ def main():
             case '4':
                     x = input('Quiere el reporte alfabeticamente(A) o por calificaciones(B)? ')
                     if x == 'A':
-                        with open('ReporteAlfabetico.txt', 'a') as f: 
-                            calif = bubble_sort(nodos)
-                            nodos = lista_estudiantes.obtener_lista_nodos()
-                            for nodo in calif:
-                                f.writelines(f"Nombre: {nodo.nombre} | ID: {nodo.id} | Calificación: {nodo.calificacion}\n")
-                            print('Reporte guardado como ReporteAlfabetico.txt')
-                    elif x == 'B':
-                        with open('ReporteCalificaciones.txt', 'a') as f: 
-                            nombres = selection_sort(nodos)
+
+                        nodos = lista_estudiantes.obtener_lista_nodos()
+                        nombres = selection_sort(nodos)
+                        with open('ReporteAlfabetico.txt', 'a') as f:
                             for nodo in nombres:
                                 f.writelines(f"Nombre: {nodo.nombre} | ID: {nodo.id} | Calificación: {nodo.calificacion}\n")
-                            print('Reporte guardado como ReporteCalificaciones.txt')
+                        print('Reporte guardado como ReporteAlfabetico.txt')
+                    elif x == 'B':
+
+                        nodos = lista_estudiantes.obtener_lista_nodos()
+                        calif = bubble_sort(nodos)
+                        with open('ReporteCalificaciones.txt', 'a') as f:
+                            for nodo in calif:
+                                f.writelines(f"Nombre: {nodo.nombre} | ID: {nodo.id} | Calificación: {nodo.calificacion}\n")
+                        print('Reporte guardado como ReporteCalificaciones.txt')
+
             case '5':
                 break
             
